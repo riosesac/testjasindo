@@ -4,6 +4,7 @@ namespace App\Http\Controllers\login;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class crud extends Controller
 {
@@ -20,7 +21,7 @@ class crud extends Controller
             return [
                 'nama' => $out['name'],
                 'email' => $out['email'],
-                'image' => public_path().'/berkas/'.$out['image'],
+                'image' => url('/berkas/'.$out['image']),
             ];
         });
     }
@@ -71,7 +72,7 @@ class crud extends Controller
             'name' => 'required',
             'email' => 'required',
             'password' => 'required|min:6|max:8',
-            'image' => 'required|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
+            'image' => 'required|image|mimes:jpg,png,jpeg,gif,svg',
         ]);
         $data = $request->file('image');
         if ($data->isValid()) {    
@@ -86,16 +87,20 @@ class crud extends Controller
             'password' => $val['password'],
             'image' => $nama_file,
         ]);
-        if ($project) {
+        $out = \App\Models\User::where('name',$project->name)->first();
+        // dd($out);
+        if ($out) {
             $msg = [
                 'success' => true,
-                'message' => 'Berhasil terbuat!'
+                'token' => $out->createToken($out->name)->accessToken,
+                'message' => 'Berhasil Register!'
             ];
         }
-        if (!$project) {
+        if (!$out) {
             $msg = [
                 'success' => false,
-                'message' => 'Gagal terbuat!'
+                'token' => 'null',
+                'message' => 'Gagal Register!'
             ];
         }
         return response()->json($msg);
@@ -127,7 +132,7 @@ class crud extends Controller
          return [
             'nama' => $data['nama'],
             'email' => $data['email'],
-            'image' => public_path().'/berkas/'.$data['image'], 
+            'image' => url('/berkas/'.$data['image']), 
          ];
     }
 
@@ -200,5 +205,23 @@ class crud extends Controller
             ];
         }
         return response()->json($msg);
+    }
+    
+    public function logout()
+    {
+        $data = Auth::logout();
+        if (!$data) {
+            $msg = [
+                'success' => true,
+                'message' => 'Selamat tinggal!'
+            ];
+            return response()->json($msg);
+        } else {
+            $msg = [
+                'success' => false,
+                'message' => 'Gak Jadi Selamat tinggal!'
+            ];
+            return response()->json($msg);
+        }
     }
 }

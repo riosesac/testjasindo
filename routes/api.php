@@ -23,3 +23,4 @@ Route::get('/user', '\App\Http\Controllers\login\crud@edit');
 Route::post('/login', '\App\Http\Controllers\login\crud@create');
 Route::post('/register', '\App\Http\Controllers\login\crud@store');
 Route::post('/delete/{id}', '\App\Http\Controllers\login\crud@destroy');
+Route::get('/logout', '\App\Http\Controllers\login\crud@logout');
